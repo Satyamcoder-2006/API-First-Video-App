@@ -62,7 +62,7 @@ export default function SignupScreen({ navigation }) {
         <View style={styles.headerSpacer}>
           <Feather name="plus-circle" size={64} color={COLORS.accent} />
           <Text style={styles.title}>NEW PROTOCOL</Text>
-          <Text style={styles.subtitle}>INITIALIZE ANTIGRAVITY IDENTITY</Text>
+          <Text style={styles.subtitle}>INITIALIZE VAULT IDENTITY</Text>
         </View>
 
         <View style={styles.content}>

@@ -51,7 +51,7 @@ export default function LoginScreen({ navigation }) {
       >
         <View style={styles.headerSpacer}>
           <Feather name="shield" size={64} color={COLORS.accent} />
-          <Text style={styles.title}>ANTIGRAVITY OS</Text>
+          <Text style={styles.title}>STREAMVAULT</Text>
           <Text style={styles.subtitle}>SECURE AUTHENTICATION HUB</Text>
         </View>
 

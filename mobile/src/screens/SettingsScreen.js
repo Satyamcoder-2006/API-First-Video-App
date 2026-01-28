@@ -89,7 +89,7 @@ export default function SettingsScreen({ navigation }) {
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.versionText}>ANTIGRAVITY OS V1.0.4</Text>
+        <Text style={styles.versionText}>STREAMVAULT V1.0.4</Text>
       </View>
     </View>
   );
