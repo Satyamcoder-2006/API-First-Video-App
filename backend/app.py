@@ -262,8 +262,8 @@ def create_app():
     @app.get("/dashboard")
     @jwt_required()
     def dashboard():
-        # Up to 10 active videos
-        cursor = videos_col.find({"is_active": True}).sort("created_at", -1).limit(10)
+        # EXACTLY 2 active videos
+        cursor = videos_col.find({"is_active": True}).sort("created_at", -1).limit(2)
         vids = list(cursor)
         return [
             {
