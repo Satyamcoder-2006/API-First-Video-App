@@ -18,10 +18,6 @@ export default function VideoPlayerScreen({ route, navigation }) {
   const { videoId } = route.params;
   const [embedUrl, setEmbedUrl] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isPlayingInternal, setIsPlayingInternal] = useState(true);
-  const [muted, setMuted] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const playerRef = useRef(null);
 
   useEffect(() => {
@@ -47,49 +43,10 @@ export default function VideoPlayerScreen({ route, navigation }) {
     setLoading(false);
   };
 
-  const toggleMute = () => {
-    setMuted(prev => !prev);
-  };
-
-  const onStateChange = (state) => {
-    // We only track this to keep the interval polling running
-    if (state === "playing") {
-      setIsPlayingInternal(true);
-    } else {
-      setIsPlayingInternal(false);
-    }
-  };
-
-  // Polling for current time
-  useEffect(() => {
-    let interval;
-    if (isPlayingInternal && playerRef.current) {
-      interval = setInterval(async () => {
-        try {
-          const time = await playerRef.current.getCurrentTime();
-          setCurrentTime(time);
-        } catch (e) { }
-      }, 500);
-    } else {
-      clearInterval(interval);
-    }
-    return () => clearInterval(interval);
-  }, [isPlayingInternal]);
-
-  const onReady = async () => {
+  const onReady = () => {
     if (playerRef.current) {
-      try {
-        const videoDuration = await playerRef.current.getDuration();
-        setDuration(videoDuration);
-      } catch (err) { }
+      playerRef.current.seekTo(0, true);
     }
-  };
-
-  const formatTime = (seconds) => {
-    if (!seconds || isNaN(seconds)) return "0:00";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   if (loading) {
@@ -123,10 +80,9 @@ export default function VideoPlayerScreen({ route, navigation }) {
             width={"100%"}
             videoId={embedUrl}
             play={true}
-            mute={muted}
-            onChangeState={onStateChange}
             onReady={onReady}
             initialPlayerParams={{
+              controls: false, // We use our own controls
               rel: false,
               modestbranding: true,
             }}
@@ -134,31 +90,6 @@ export default function VideoPlayerScreen({ route, navigation }) {
           />
           <View style={styles.activeIndicator} />
         </View>
-      </View>
-
-      <View style={styles.controls}>
-        <TouchableOpacity
-          style={styles.controlPrimaryMute}
-          onPress={toggleMute}
-          activeOpacity={0.7}
-        >
-          <Feather name={muted ? "volume-x" : "volume-2"} size={24} color={COLORS.white} />
-          <Text style={styles.controlText}>{muted ? "UNMUTE AUDIO" : "MUTE AUDIO"}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.timeContainer}>
-        <View style={styles.progressBarBackground}>
-          <View
-            style={[
-              styles.progressBarActive,
-              { width: `${(currentTime / (duration || 1)) * 100}%` }
-            ]}
-          />
-        </View>
-        <Text style={styles.timeText}>
-          {formatTime(currentTime)} <Text style={styles.timeSeparator}>/</Text> {formatTime(duration)}
-        </Text>
       </View>
 
       <View style={styles.statusFooter}>
@@ -217,57 +148,6 @@ const styles = StyleSheet.create({
     height: "100%",
     backgroundColor: COLORS.accent,
   },
-  controls: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 30,
-    marginTop: 40,
-  },
-  controlPrimaryMute: {
-    flexDirection: "row",
-    backgroundColor: COLORS.card,
-    paddingHorizontal: 40,
-    paddingVertical: 15,
-    borderRadius: BORDER_RADIUS.md,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: COLORS.accent,
-    minWidth: 220,
-    justifyContent: "center",
-  },
-  controlText: {
-    color: COLORS.white,
-    fontSize: 12,
-    fontWeight: "900",
-    letterSpacing: 2,
-    marginLeft: 12,
-  },
-  timeContainer: {
-    paddingHorizontal: 40,
-    marginTop: 40,
-    alignItems: "center",
-  },
-  progressBarBackground: {
-    width: "100%",
-    height: 2,
-    backgroundColor: COLORS.border,
-    marginBottom: 15,
-  },
-  progressBarActive: {
-    height: "100%",
-    backgroundColor: COLORS.accent,
-  },
-  timeText: {
-    color: COLORS.textPrimary,
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 2,
-  },
-  timeSeparator: {
-    color: COLORS.accent,
-  },
-
   statusFooter: {
     position: 'absolute',
     bottom: 40,
