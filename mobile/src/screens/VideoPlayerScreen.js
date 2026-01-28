@@ -48,22 +48,23 @@ export default function VideoPlayerScreen({ route, navigation }) {
   };
 
   const togglePlaying = () => {
-    if (playerRef.current) {
-      if (playing) {
-        playerRef.current.pauseVideo?.();
-      } else {
-        playerRef.current.playVideo?.();
-      }
-      // We don't manually setPlaying(prev => !prev) here because 
-      // onStateChange will handle the state sync from the player's actual event.
-      // However, to make the UI feel snappy, we can toggle it locally too.
-      setPlaying(prev => !prev);
-    }
+    setPlaying(prev => !prev);
   };
 
   const toggleMute = () => {
     setMuted(prev => !prev);
   };
+
+  // Sync the 'playing' state with the actual YouTube player
+  useEffect(() => {
+    if (playerRef.current) {
+      if (playing) {
+        playerRef.current.playVideo?.();
+      } else {
+        playerRef.current.pauseVideo?.();
+      }
+    }
+  }, [playing]);
 
   const onStateChange = (state) => {
     if (state === "playing") {
