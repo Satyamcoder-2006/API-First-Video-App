@@ -9,7 +9,7 @@ StreamVault is a high-performance, full-stack video streaming dashboard built as
 2. [Branding & Design System](#-branding--design-system)
 3. [The Backend: The Brain of StreamVault](#-the-backend-the-brain-of-streamvault)
 4. [The Frontend: The StreamVault Interface](#-the-frontend-the-streamvault-interface)
-5. [Video Abstraction Technology](#-video-abstraction-technology)
+5. [Video Abstraction Technology](%EF%B8%8F-video-abstraction-technology)
 6. [API Documentation](#-api-documentation)
 7. [Security Infrastructure](#-security-infrastructure)
 8. [Setup & Installation](#-setup--installation)
