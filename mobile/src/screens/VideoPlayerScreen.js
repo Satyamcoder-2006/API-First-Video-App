@@ -48,7 +48,17 @@ export default function VideoPlayerScreen({ route, navigation }) {
   };
 
   const togglePlaying = () => {
-    setPlaying(prev => !prev);
+    if (playerRef.current) {
+      if (playing) {
+        playerRef.current.pauseVideo?.();
+      } else {
+        playerRef.current.playVideo?.();
+      }
+      // We don't manually setPlaying(prev => !prev) here because 
+      // onStateChange will handle the state sync from the player's actual event.
+      // However, to make the UI feel snappy, we can toggle it locally too.
+      setPlaying(prev => !prev);
+    }
   };
 
   const toggleMute = () => {
