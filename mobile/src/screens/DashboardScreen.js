@@ -11,6 +11,8 @@ import {
   Alert,
 } from "react-native";
 import { apiCall } from "../api/client";
+import { COLORS, SPACING, BORDER_RADIUS } from "../theme";
+import { Feather } from "@expo/vector-icons";
 
 export default function DashboardScreen({ navigation }) {
   const [videos, setVideos] = useState([]);
@@ -43,20 +45,30 @@ export default function DashboardScreen({ navigation }) {
 
   const renderVideoItem = ({ item }) => (
     <TouchableOpacity
-      style={styles.videoTile}
+      style={styles.videoCard}
       onPress={() => navigation.navigate("VideoPlayer", { videoId: item.id })}
-      activeOpacity={0.7}
+      activeOpacity={0.8}
     >
-      <Image
-        source={{ uri: item.thumbnail_url }}
-        style={styles.thumbnail}
-        resizeMode="cover"
-      />
+      <View style={styles.thumbnailContainer}>
+        <Image
+          source={{ uri: item.thumbnail_url }}
+          style={styles.thumbnail}
+          resizeMode="cover"
+        />
+        <View style={styles.playIconContainer}>
+          <Feather name="play" size={20} color={COLORS.accent} />
+        </View>
+        {!item.thumbnail_url && (
+          <View style={[styles.thumbnail, styles.placeholderThumbnail]}>
+            <Feather name="image" size={32} color={COLORS.border} />
+          </View>
+        )}
+      </View>
       <View style={styles.videoInfo}>
         <Text style={styles.videoTitle} numberOfLines={1}>
           {item.title}
         </Text>
-        <Text style={styles.videoDescription} numberOfLines={2}>
+        <Text style={styles.videoDescription} numberOfLines={1}>
           {item.description}
         </Text>
       </View>
@@ -66,33 +78,45 @@ export default function DashboardScreen({ navigation }) {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>Loading videos...</Text>
-      </View>
-    );
-  }
-
-  if (videos.length === 0) {
-    return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.emptyText}>No videos available</Text>
-        <TouchableOpacity style={styles.refreshButton} onPress={onRefresh}>
-          <Text style={styles.refreshButtonText}>Refresh</Text>
-        </TouchableOpacity>
+        <ActivityIndicator size="large" color={COLORS.accent} />
+        <Text style={styles.loadingText}>INITIALIZING...</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Dashboard</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerTitle}>DASHBOARD</Text>
+        <TouchableOpacity onPress={onRefresh} style={styles.iconButton}>
+          <Feather name="refresh-cw" size={20} color={COLORS.accent} />
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={videos}
         renderItem={renderVideoItem}
         keyExtractor={(item) => item.id}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
         contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={COLORS.accent}
+            colors={[COLORS.accent]}
+          />
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Feather name="video-off" size={48} color={COLORS.border} />
+            <Text style={styles.emptyText}>NO CONTENT DETECTED</Text>
+            <TouchableOpacity style={styles.refreshButton} onPress={onRefresh}>
+              <Text style={styles.refreshButtonText}>RETRY CONNECT</Text>
+            </TouchableOpacity>
+          </View>
         }
       />
     </View>
@@ -102,71 +126,129 @@ export default function DashboardScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: COLORS.background,
+    paddingTop: 20,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: COLORS.background,
   },
-  header: {
-    fontSize: 28,
-    fontWeight: "bold",
-    padding: 20,
-    paddingBottom: 10,
-    backgroundColor: "#fff",
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    marginTop: 20,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "900",
+    letterSpacing: 2,
+    color: COLORS.textPrimary,
+  },
+  iconButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: COLORS.card,
   },
   listContent: {
-    padding: 10,
+    paddingHorizontal: SPACING.md,
+    paddingBottom: SPACING.xl,
   },
-  videoTile: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    marginBottom: 15,
+  row: {
+    justifyContent: "space-between",
+  },
+  videoCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.lg,
+    marginBottom: SPACING.md,
+    width: "48%",
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: "rgba(255,107,0,0.1)",
+  },
+  thumbnailContainer: {
+    position: "relative",
+    aspectRatio: 16 / 9,
+    width: "100%",
   },
   thumbnail: {
     width: "100%",
-    height: 200,
-    backgroundColor: "#ddd",
+    height: "100%",
+    backgroundColor: COLORS.card,
+  },
+  placeholderThumbnail: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: COLORS.card,
+  },
+  playIconContainer: {
+    position: "absolute",
+    bottom: 8,
+    right: 8,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    borderRadius: 20,
+    width: 32,
+    height: 32,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.accent,
   },
   videoInfo: {
-    padding: 15,
+    padding: 10,
   },
   videoTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "bold",
-    marginBottom: 8,
-    color: "#000",
+    color: COLORS.textPrimary,
+    marginBottom: 4,
   },
   videoDescription: {
-    fontSize: 14,
-    color: "#666",
-    lineHeight: 20,
+    fontSize: 11,
+    color: COLORS.textSecondary,
   },
   loadingText: {
-    marginTop: 10,
-    color: "#666",
+    marginTop: 15,
+    color: COLORS.accent,
+    letterSpacing: 4,
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 100,
   },
   emptyText: {
-    fontSize: 16,
-    color: "#666",
-    marginBottom: 20,
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginTop: 20,
+    letterSpacing: 2,
+    fontWeight: "600",
   },
   refreshButton: {
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
+    marginTop: 24,
+    paddingHorizontal: 30,
+    paddingVertical: 12,
+    borderRadius: BORDER_RADIUS.md,
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: COLORS.accent,
   },
   refreshButtonText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: COLORS.accent,
+    fontWeight: "900",
+    fontSize: 12,
+    letterSpacing: 1,
   },
 });

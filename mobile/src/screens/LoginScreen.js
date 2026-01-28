@@ -12,6 +12,8 @@ import {
   ScrollView,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
+import { COLORS, SPACING, BORDER_RADIUS } from "../theme";
+import { Feather } from "@expo/vector-icons";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -21,11 +23,11 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
     if (!email.trim()) {
-      Alert.alert("Error", "Email is required");
+      Alert.alert("CORE SYSTEM FAILURE", "EMAIL IDENTIFIER REQUIRED");
       return;
     }
     if (!password) {
-      Alert.alert("Error", "Password is required");
+      Alert.alert("CORE SYSTEM FAILURE", "SECURITY KEY REQUIRED");
       return;
     }
 
@@ -33,10 +35,8 @@ export default function LoginScreen({ navigation }) {
     const result = await login(email.trim().toLowerCase(), password);
     setLoading(false);
 
-    if (result.success) {
-      // Navigation handled by AuthContext state change
-    } else {
-      Alert.alert("Login Failed", result.error || "Invalid email or password");
+    if (!result.success) {
+      Alert.alert("AUTH ERROR", result.error || "INVALID PROTOCOL");
     }
   };
 
@@ -49,27 +49,39 @@ export default function LoginScreen({ navigation }) {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
+        <View style={styles.headerSpacer}>
+          <Feather name="shield" size={64} color={COLORS.accent} />
+          <Text style={styles.title}>ANTIGRAVITY OS</Text>
+          <Text style={styles.subtitle}>SECURE AUTHENTICATION HUB</Text>
+        </View>
+
         <View style={styles.content}>
-          <Text style={styles.title}>Login</Text>
+          <View style={styles.inputWrapper}>
+            <Feather name="mail" size={18} color={COLORS.accent} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="PRIMARY EMAIL"
+              placeholderTextColor={COLORS.textSecondary}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              editable={!loading}
+            />
+          </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            editable={!loading}
-          />
-
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            editable={!loading}
-          />
+          <View style={styles.inputWrapper}>
+            <Feather name="lock" size={18} color={COLORS.accent} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="SECURITY KEY"
+              placeholderTextColor={COLORS.textSecondary}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              editable={!loading}
+            />
+          </View>
 
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
@@ -77,22 +89,27 @@ export default function LoginScreen({ navigation }) {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={COLORS.white} />
             ) : (
-              <Text style={styles.buttonText}>Login</Text>
+              <Text style={styles.buttonText}>AUTHENTICATE</Text>
             )}
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => navigation.navigate("Signup")}
+            style={styles.linkContainer}
             disabled={loading}
           >
             <Text style={styles.linkText}>
-              Don't have an account? Signup
+              NO ACCESS? <Text style={styles.linkTextBold}>INITIALIZE ACCOUNT</Text>
             </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>ENCRYPTION: AES-256 ACTIVE</Text>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -100,50 +117,99 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.background,
   },
   scrollContent: {
     flexGrow: 1,
+    padding: SPACING.xl,
     justifyContent: "center",
-    padding: 20,
+  },
+  headerSpacer: {
+    alignItems: "center",
+    marginBottom: 50,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "900",
+    color: COLORS.textPrimary,
+    marginTop: 20,
+    letterSpacing: 4,
+  },
+  subtitle: {
+    fontSize: 10,
+    color: COLORS.accent,
+    fontWeight: "700",
+    letterSpacing: 3,
+    marginTop: 8,
   },
   content: {
     width: "100%",
   },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 30,
-    textAlign: "center",
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginBottom: 20,
+    paddingHorizontal: 15,
+  },
+  inputIcon: {
+    marginRight: 10,
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
-    fontSize: 16,
-    backgroundColor: "#f9f9f9",
+    flex: 1,
+    paddingVertical: 15,
+    fontSize: 14,
+    color: COLORS.textPrimary,
+    fontWeight: "600",
+    letterSpacing: 1,
   },
   button: {
-    backgroundColor: "#007AFF",
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: COLORS.accent,
+    paddingVertical: 18,
+    borderRadius: BORDER_RADIUS.md,
     alignItems: "center",
     marginTop: 10,
+    shadowColor: COLORS.accent,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   buttonDisabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
   buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: "900",
+    letterSpacing: 2,
+  },
+  linkContainer: {
+    marginTop: 30,
+    alignItems: "center",
   },
   linkText: {
-    color: "#007AFF",
-    textAlign: "center",
-    marginTop: 20,
-    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontSize: 11,
+    letterSpacing: 1,
+  },
+  linkTextBold: {
+    color: COLORS.accent,
+    fontWeight: "900",
+  },
+  footer: {
+    position: "absolute",
+    bottom: 20,
+    width: "100%",
+    alignItems: "center",
+  },
+  footerText: {
+    fontSize: 10,
+    color: COLORS.border,
+    fontWeight: "700",
+    letterSpacing: 2,
   },
 });

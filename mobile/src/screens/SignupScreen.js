@@ -12,6 +12,8 @@ import {
   ScrollView,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
+import { COLORS, SPACING, BORDER_RADIUS } from "../theme";
+import { Feather } from "@expo/vector-icons";
 
 export default function SignupScreen({ navigation }) {
   const [name, setName] = useState("");
@@ -27,19 +29,15 @@ export default function SignupScreen({ navigation }) {
 
   const handleSignup = async () => {
     if (!name.trim()) {
-      Alert.alert("Error", "Name is required");
+      Alert.alert("CORE SYSTEM FAILURE", "NAME IDENTIFIER REQUIRED");
       return;
     }
-    if (!email.trim()) {
-      Alert.alert("Error", "Email is required");
-      return;
-    }
-    if (!validateEmail(email)) {
-      Alert.alert("Error", "Invalid email format");
+    if (!email.trim() || !validateEmail(email)) {
+      Alert.alert("CORE SYSTEM FAILURE", "VALID EMAIL IDENTIFIER REQUIRED");
       return;
     }
     if (password.length < 8) {
-      Alert.alert("Error", "Password must be at least 8 characters");
+      Alert.alert("SECURITY BREACH", "KEY STRENGTH INSUFFICIENT (MIN 8 CHARS)");
       return;
     }
 
@@ -47,10 +45,8 @@ export default function SignupScreen({ navigation }) {
     const result = await signup(name.trim(), email.trim().toLowerCase(), password);
     setLoading(false);
 
-    if (result.success) {
-      // Navigation handled by AuthContext state change
-    } else {
-      Alert.alert("Signup Failed", result.error || "Please try again");
+    if (!result.success) {
+      Alert.alert("PROTOCOL FAILED", result.error || "INITIALIZATION ERROR");
     }
   };
 
@@ -63,36 +59,52 @@ export default function SignupScreen({ navigation }) {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
+        <View style={styles.headerSpacer}>
+          <Feather name="plus-circle" size={64} color={COLORS.accent} />
+          <Text style={styles.title}>NEW PROTOCOL</Text>
+          <Text style={styles.subtitle}>INITIALIZE ANTIGRAVITY IDENTITY</Text>
+        </View>
+
         <View style={styles.content}>
-          <Text style={styles.title}>Sign Up</Text>
+          <View style={styles.inputWrapper}>
+            <Feather name="user" size={18} color={COLORS.accent} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="FULL NAME"
+              placeholderTextColor={COLORS.textSecondary}
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="words"
+              editable={!loading}
+            />
+          </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Name"
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words"
-            editable={!loading}
-          />
+          <View style={styles.inputWrapper}>
+            <Feather name="mail" size={18} color={COLORS.accent} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="PRIMARY EMAIL"
+              placeholderTextColor={COLORS.textSecondary}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              editable={!loading}
+            />
+          </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            editable={!loading}
-          />
-
-          <TextInput
-            style={styles.input}
-            placeholder="Password (min 8 characters)"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            editable={!loading}
-          />
+          <View style={styles.inputWrapper}>
+            <Feather name="lock" size={18} color={COLORS.accent} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="SECURITY KEY"
+              placeholderTextColor={COLORS.textSecondary}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              editable={!loading}
+            />
+          </View>
 
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
@@ -100,22 +112,27 @@ export default function SignupScreen({ navigation }) {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={COLORS.white} />
             ) : (
-              <Text style={styles.buttonText}>Sign Up</Text>
+              <Text style={styles.buttonText}>INITIALIZE</Text>
             )}
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => navigation.navigate("Login")}
+            style={styles.linkContainer}
             disabled={loading}
           >
             <Text style={styles.linkText}>
-              Already have an account? Login
+              EXISTING PROTOCOL? <Text style={styles.linkTextBold}>RETRIEVE ACCESS</Text>
             </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>SYSTEMS: STABLE | UPTIME: 99.9%</Text>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -123,50 +140,99 @@ export default function SignupScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.background,
   },
   scrollContent: {
     flexGrow: 1,
+    padding: SPACING.xl,
     justifyContent: "center",
-    padding: 20,
+  },
+  headerSpacer: {
+    alignItems: "center",
+    marginBottom: 50,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "900",
+    color: COLORS.textPrimary,
+    marginTop: 20,
+    letterSpacing: 4,
+  },
+  subtitle: {
+    fontSize: 10,
+    color: COLORS.accent,
+    fontWeight: "700",
+    letterSpacing: 2,
+    marginTop: 8,
   },
   content: {
     width: "100%",
   },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 30,
-    textAlign: "center",
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginBottom: 20,
+    paddingHorizontal: 15,
+  },
+  inputIcon: {
+    marginRight: 10,
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
-    fontSize: 16,
-    backgroundColor: "#f9f9f9",
+    flex: 1,
+    paddingVertical: 15,
+    fontSize: 14,
+    color: COLORS.textPrimary,
+    fontWeight: "600",
+    letterSpacing: 1,
   },
   button: {
-    backgroundColor: "#007AFF",
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: COLORS.accent,
+    paddingVertical: 18,
+    borderRadius: BORDER_RADIUS.md,
     alignItems: "center",
     marginTop: 10,
+    shadowColor: COLORS.accent,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   buttonDisabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
   buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: "900",
+    letterSpacing: 2,
+  },
+  linkContainer: {
+    marginTop: 30,
+    alignItems: "center",
   },
   linkText: {
-    color: "#007AFF",
-    textAlign: "center",
-    marginTop: 20,
-    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontSize: 11,
+    letterSpacing: 1,
+  },
+  linkTextBold: {
+    color: COLORS.accent,
+    fontWeight: "900",
+  },
+  footer: {
+    position: "absolute",
+    bottom: 20,
+    width: "100%",
+    alignItems: "center",
+  },
+  footerText: {
+    fontSize: 10,
+    color: COLORS.border,
+    fontWeight: "700",
+    letterSpacing: 2,
   },
 });

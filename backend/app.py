@@ -59,16 +59,13 @@ def _check_password(password: str, pw_hash: str) -> bool:
 
 
 def seed_videos(videos_col):
-    if videos_col.count_documents({}) > 0:
-        return
-
-    # 5+ real YouTube IDs (well-known talks). Adjust anytime.
+    # 5+ real YouTube IDs (well-known talks).
     seed = [
         {
             "title": "How to Start a Startup (Sam Altman)",
             "description": "Y Combinator's Sam Altman shares practical startup lessons.",
             "youtube_id": "CBYhVcO4WgI",
-            "thumbnail_url": "https://img.youtube.com/vi/CBYhVcO4WgI/maxresdefault.jpg",
+            "thumbnail_url": "https://img.youtube.com/vi/CBYhVcO4WgI/hqdefault.jpg",
             "is_active": True,
             "created_at": _utcnow(),
         },
@@ -76,7 +73,7 @@ def seed_videos(videos_col):
             "title": "Inside the Mind of a Master Procrastinator",
             "description": "A humorous TED talk that explains procrastination behavior.",
             "youtube_id": "arj7oStGLkU",
-            "thumbnail_url": "https://img.youtube.com/vi/arj7oStGLkU/maxresdefault.jpg",
+            "thumbnail_url": "https://img.youtube.com/vi/arj7oStGLkU/hqdefault.jpg",
             "is_active": True,
             "created_at": _utcnow(),
         },
@@ -84,7 +81,7 @@ def seed_videos(videos_col):
             "title": "The Future of Programming",
             "description": "Discussion on how software development is evolving.",
             "youtube_id": "8pTEmbeENF4",
-            "thumbnail_url": "https://img.youtube.com/vi/8pTEmbeENF4/maxresdefault.jpg",
+            "thumbnail_url": "https://img.youtube.com/vi/8pTEmbeENF4/hqdefault.jpg",
             "is_active": True,
             "created_at": _utcnow(),
         },
@@ -92,7 +89,7 @@ def seed_videos(videos_col):
             "title": "How Great Leaders Inspire Action",
             "description": "Simon Sinek on starting with why and building belief.",
             "youtube_id": "qp0HIF3SfI4",
-            "thumbnail_url": "https://img.youtube.com/vi/qp0HIF3SfI4/maxresdefault.jpg",
+            "thumbnail_url": "https://img.youtube.com/vi/qp0HIF3SfI4/hqdefault.jpg",
             "is_active": True,
             "created_at": _utcnow(),
         },
@@ -100,13 +97,38 @@ def seed_videos(videos_col):
             "title": "The Surprising Habits of Original Thinkers",
             "description": "Adam Grant explores patterns among original thinkers.",
             "youtube_id": "fxbCHn6gE3U",
-            "thumbnail_url": "https://img.youtube.com/vi/fxbCHn6gE3U/maxresdefault.jpg",
+            "thumbnail_url": "https://img.youtube.com/vi/fxbCHn6gE3U/hqdefault.jpg",
+            "is_active": True,
+            "created_at": _utcnow(),
+        },
+        {
+            "title": "Your Body Language May Shape Who You Are",
+            "description": "Amy Cuddy on how power posing affects confidence.",
+            "youtube_id": "Ks-_Mh1QhMc",
+            "thumbnail_url": "https://img.youtube.com/vi/Ks-_Mh1QhMc/hqdefault.jpg",
+            "is_active": True,
+            "created_at": _utcnow(),
+        },
+        {
+            "title": "The Power of Vulnerability",
+            "description": "Brené Brown studies human connection and empathy.",
+            "youtube_id": "iCvmsMzlF7o",
+            "thumbnail_url": "https://img.youtube.com/vi/iCvmsMzlF7o/hqdefault.jpg",
             "is_active": True,
             "created_at": _utcnow(),
         },
     ]
 
-    videos_col.insert_many(seed)
+    for item in seed:
+        exists = videos_col.find_one({"youtube_id": item["youtube_id"]})
+        if not exists:
+            videos_col.insert_one(item)
+        else:
+            # Update thumbnail for existing videos to fix resolution issues
+            videos_col.update_one(
+                {"youtube_id": item["youtube_id"]},
+                {"$set": {"thumbnail_url": item["thumbnail_url"]}}
+            )
 
 
 def create_app():
@@ -240,8 +262,8 @@ def create_app():
     @app.get("/dashboard")
     @jwt_required()
     def dashboard():
-        # EXACTLY 2 active videos
-        cursor = videos_col.find({"is_active": True}).sort("created_at", -1).limit(2)
+        # Up to 10 active videos
+        cursor = videos_col.find({"is_active": True}).sort("created_at", -1).limit(10)
         vids = list(cursor)
         return [
             {

@@ -9,6 +9,9 @@ import VideoPlayerScreen from "../screens/VideoPlayerScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import { ActivityIndicator, View, StyleSheet } from "react-native";
 
+import { Feather } from "@expo/vector-icons";
+import { COLORS } from "../theme";
+
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -17,6 +20,7 @@ function AuthStack() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
+        cardStyle: { backgroundColor: COLORS.background },
       }}
     >
       <Stack.Screen name="Login" component={LoginScreen} />
@@ -30,12 +34,18 @@ function MainTabs() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#007AFF",
-        tabBarInactiveTintColor: "#999",
+        tabBarActiveTintColor: COLORS.accent,
+        tabBarInactiveTintColor: COLORS.textSecondary,
         tabBarStyle: {
-          paddingBottom: 5,
+          backgroundColor: COLORS.card,
+          borderTopColor: COLORS.border,
+          height: 65,
+          paddingBottom: 10,
           paddingTop: 5,
-          height: 60,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: "600",
         },
       }}
     >
@@ -44,7 +54,9 @@ function MainTabs() {
         component={DashboardScreen}
         options={{
           tabBarLabel: "Home",
-          tabBarIcon: () => null,
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="home" color={color} size={22} />
+          ),
         }}
       />
       <Tab.Screen
@@ -52,7 +64,9 @@ function MainTabs() {
         component={SettingsScreen}
         options={{
           tabBarLabel: "Settings",
-          tabBarIcon: () => null,
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="settings" color={color} size={22} />
+          ),
         }}
       />
     </Tab.Navigator>

@@ -5,5 +5,6 @@ export default ({ config }) => ({
   version: "1.0.0",
   orientation: "portrait",
   userInterfaceStyle: "automatic",
+  plugins: ["expo-asset"],
 });
 

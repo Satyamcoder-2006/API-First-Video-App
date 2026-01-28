@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import { apiCall } from "../api/client";
+import { COLORS, SPACING, BORDER_RADIUS } from "../theme";
+import { Feather } from "@expo/vector-icons";
 
 export default function SettingsScreen({ navigation }) {
   const { logout } = useAuth();
@@ -31,16 +33,15 @@ export default function SettingsScreen({ navigation }) {
 
   const handleLogout = async () => {
     Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
+      "LOGOUT",
+      "TERMINATE CURRENT SESSION?",
       [
-        { text: "Cancel", style: "cancel" },
+        { text: "CANCEL", style: "cancel" },
         {
-          text: "Logout",
+          text: "LOGOUT",
           style: "destructive",
           onPress: async () => {
             await logout();
-            // Navigation handled by AuthContext state change
           },
         },
       ]
@@ -50,31 +51,45 @@ export default function SettingsScreen({ navigation }) {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color={COLORS.accent} />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Settings</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerTitle}>PROFILE</Text>
+      </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Account Information</Text>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Name:</Text>
-          <Text style={styles.infoValue}>{userInfo?.name || "N/A"}</Text>
+        <View style={styles.sectionHeader}>
+          <Feather name="user" size={18} color={COLORS.accent} />
+          <Text style={styles.sectionTitle}>CREDENTIALS</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Email:</Text>
+          <Text style={styles.infoLabel}>NAME</Text>
+          <Text style={styles.infoValue}>{userInfo?.name || "ANONYMOUS"}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>EMAIL</Text>
           <Text style={styles.infoValue}>{userInfo?.email || "N/A"}</Text>
         </View>
       </View>
 
       <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Feather name="shield" size={18} color={COLORS.accent} />
+          <Text style={styles.sectionTitle}>SECURITY</Text>
+        </View>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>Logout</Text>
+          <Feather name="log-out" size={18} color={COLORS.white} />
+          <Text style={styles.logoutButtonText}>TERMINATE SESSION</Text>
         </TouchableOpacity>
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.versionText}>ANTIGRAVITY OS V1.0.4</Text>
       </View>
     </View>
   );
@@ -83,57 +98,88 @@ export default function SettingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: COLORS.background,
+    paddingTop: 20,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: COLORS.background,
   },
-  header: {
-    fontSize: 28,
-    fontWeight: "bold",
-    padding: 20,
-    paddingBottom: 10,
-    backgroundColor: "#fff",
+  headerContainer: {
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    marginTop: 20,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "900",
+    letterSpacing: 2,
+    color: COLORS.textPrimary,
   },
   section: {
-    backgroundColor: "#fff",
-    marginTop: 20,
-    padding: 20,
+    backgroundColor: COLORS.card,
+    marginHorizontal: SPACING.md,
+    marginTop: SPACING.md,
+    padding: SPACING.lg,
+    borderRadius: BORDER_RADIUS.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: SPACING.lg,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 15,
-    color: "#000",
+    fontSize: 12,
+    fontWeight: "900",
+    letterSpacing: 2,
+    color: COLORS.accent,
+    marginLeft: 10,
   },
   infoRow: {
-    flexDirection: "row",
-    marginBottom: 12,
-    alignItems: "center",
+    marginBottom: 20,
   },
   infoLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#666",
-    width: 80,
+    fontSize: 10,
+    fontWeight: "700",
+    color: COLORS.textSecondary,
+    marginBottom: 4,
+    letterSpacing: 1,
   },
   infoValue: {
     fontSize: 16,
-    color: "#000",
-    flex: 1,
+    color: COLORS.textPrimary,
+    fontWeight: "600",
   },
   logoutButton: {
-    backgroundColor: "#FF3B30",
-    padding: 15,
-    borderRadius: 8,
+    flexDirection: "row",
+    backgroundColor: COLORS.error,
+    padding: 16,
+    borderRadius: BORDER_RADIUS.md,
     alignItems: "center",
+    justifyContent: "center",
     marginTop: 10,
   },
   logoutButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+    color: COLORS.white,
+    fontSize: 12,
+    fontWeight: "900",
+    letterSpacing: 1,
+    marginLeft: 10,
+  },
+  footer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    alignItems: "center",
+    paddingBottom: 40,
+  },
+  versionText: {
+    fontSize: 10,
+    color: COLORS.border,
+    fontWeight: "700",
+    letterSpacing: 2,
   },
 });
