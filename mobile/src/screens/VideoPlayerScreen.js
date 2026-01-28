@@ -18,7 +18,7 @@ export default function VideoPlayerScreen({ route, navigation }) {
   const { videoId } = route.params;
   const [embedUrl, setEmbedUrl] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [playing, setPlaying] = useState(true);
+  const [isPlayingInternal, setIsPlayingInternal] = useState(true);
   const [muted, setMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -47,64 +47,41 @@ export default function VideoPlayerScreen({ route, navigation }) {
     setLoading(false);
   };
 
-  const togglePlaying = () => {
-    setPlaying(prev => !prev);
-  };
-
   const toggleMute = () => {
     setMuted(prev => !prev);
   };
 
-  // Sync the 'playing' state with the actual YouTube player
-  useEffect(() => {
-    if (playerRef.current) {
-      if (playing) {
-        playerRef.current.playVideo?.();
-      } else {
-        playerRef.current.pauseVideo?.();
-      }
-    }
-  }, [playing]);
-
   const onStateChange = (state) => {
+    // We only track this to keep the interval polling running
     if (state === "playing") {
-      setPlaying(true);
-    } else if (state === "paused" || state === "ended") {
-      setPlaying(false);
+      setIsPlayingInternal(true);
+    } else {
+      setIsPlayingInternal(false);
     }
   };
 
-  // Polling for current time because onProgress can be unreliable
+  // Polling for current time
   useEffect(() => {
     let interval;
-    if (playing && playerRef.current) {
+    if (isPlayingInternal && playerRef.current) {
       interval = setInterval(async () => {
         try {
           const time = await playerRef.current.getCurrentTime();
           setCurrentTime(time);
-        } catch (e) {
-          // Ignore errors during polling
-        }
-      }, 500); // Poll every 500ms
+        } catch (e) { }
+      }, 500);
     } else {
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [playing]);
+  }, [isPlayingInternal]);
 
   const onReady = async () => {
     if (playerRef.current) {
       try {
         const videoDuration = await playerRef.current.getDuration();
         setDuration(videoDuration);
-        // Kickstart the player and ensure it knows it should be playing if 'playing' is true
-        if (playing) {
-          // Small seek to trigger the internal bridge state update
-          playerRef.current.seekTo(0, true);
-        }
-      } catch (err) {
-        console.log("Error fetching duration or kickstarting:", err);
-      }
+      } catch (err) { }
     }
   };
 
@@ -145,12 +122,11 @@ export default function VideoPlayerScreen({ route, navigation }) {
             height={200}
             width={"100%"}
             videoId={embedUrl}
-            play={playing}
+            play={true}
             mute={muted}
             onChangeState={onStateChange}
             onReady={onReady}
             initialPlayerParams={{
-              controls: false, // We use our own controls
               rel: false,
               modestbranding: true,
             }}
@@ -162,20 +138,12 @@ export default function VideoPlayerScreen({ route, navigation }) {
 
       <View style={styles.controls}>
         <TouchableOpacity
-          style={styles.controlPrimary}
-          onPress={togglePlaying}
-          activeOpacity={0.7}
-        >
-          <Feather name={playing ? "pause" : "play"} size={24} color={COLORS.white} />
-          <Text style={styles.controlText}>{playing ? "HALT" : "RESUME"}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.controlSecondary}
+          style={styles.controlPrimaryMute}
           onPress={toggleMute}
           activeOpacity={0.7}
         >
-          <Feather name={muted ? "volume-x" : "volume-2"} size={24} color={COLORS.accent} />
+          <Feather name={muted ? "volume-x" : "volume-2"} size={24} color={COLORS.white} />
+          <Text style={styles.controlText}>{muted ? "UNMUTE AUDIO" : "MUTE AUDIO"}</Text>
         </TouchableOpacity>
       </View>
 
@@ -256,22 +224,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     marginTop: 40,
   },
-  controlPrimary: {
+  controlPrimaryMute: {
     flexDirection: "row",
-    backgroundColor: COLORS.accent,
+    backgroundColor: COLORS.card,
     paddingHorizontal: 40,
     paddingVertical: 15,
     borderRadius: BORDER_RADIUS.md,
     alignItems: "center",
-    marginRight: 15,
-    minWidth: 160,
-  },
-  controlSecondary: {
-    backgroundColor: COLORS.card,
-    padding: 15,
-    borderRadius: BORDER_RADIUS.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: COLORS.accent,
+    minWidth: 220,
+    justifyContent: "center",
   },
   controlText: {
     color: COLORS.white,
@@ -304,6 +267,7 @@ const styles = StyleSheet.create({
   timeSeparator: {
     color: COLORS.accent,
   },
+
   statusFooter: {
     position: 'absolute',
     bottom: 40,
