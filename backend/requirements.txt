@@ -2,7 +2,8 @@ flask
 flask-cors
 flask-jwt-extended
 flask-limiter
-pymongo
+pymongo[srv]
+dnspython
 python-dotenv
 bcrypt
-
+gunicorn

@@ -282,9 +282,10 @@ Response:
 
 ## 🚢 Deployment
 
-**📘 For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)**
+- [Railway Deployment Guide](RAILWAY_DEPLOYMENT.md) (Best for persistent APIs)
+- [Vercel Deployment Guide](VERCEL_DEPLOYMENT.md) (Best for Serverless/Free tier)
 
-### Quick Summary
+## 🛠 Backend Setup (Local)
 
 - **Backend**: Deploy separately to Render.com or Railway.app
 - **Mobile App**: Build separately using Expo EAS Build
